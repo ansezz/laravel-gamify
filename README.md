@@ -243,10 +243,10 @@ class PostCreated extends PointType
 
 #### Event on reputation changed
 
-Whenever user point changes it fires `\Ansezz\Gamify\Events\ReputationChanged` event which has the following payload:
+Whenever user point changes it fires `\Ansezz\Gamify\Events\PointsChanged` event which has the following payload:
 
 ```php
-class ReputationChanged implements ShouldBroadcast {
+class PointsChanged implements ShouldBroadcast {
     
     ...
     public function __construct(Model $user, int $point, bool $increment)

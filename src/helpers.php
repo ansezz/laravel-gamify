@@ -1,24 +1,23 @@
 <?php
 
-use Ansezz\Gamify\PointType;
 
 if (!function_exists('givePoint')) {
 
     /**
      * Give point to user
      *
-     * @param PointType $pointType
-     * @param null $payee
+     * @param \Ansezz\Gamify\Point $point
+     * @param null $subject
      */
-    function givePoint(PointType $pointType, $payee = null)
+    function achievePoint(\Ansezz\Gamify\Point $point, $subject = null)
     {
-        $payee = $payee ?? auth()->user();
+        $subject = $subject ?? auth()->user();
 
-        if (!$payee) {
+        if (!$subject) {
             return;
         }
 
-        $payee->givePoint($pointType);
+        $subject->achievePoint($point);
     }
 }
 
@@ -27,18 +26,18 @@ if (!function_exists('undoPoint')) {
     /**
      * Undo a given point
      *
-     * @param PointType $pointType
-     * @param null $payee
+     * @param \Ansezz\Gamify\Point $point
+     * @param null $subject
      */
-    function undoPoint(PointType $pointType, $payee = null)
+    function undoPoint(\Ansezz\Gamify\Point $point, $subject = null)
     {
-        $payee = $payee ?? auth()->user();
+        $subject = $subject ?? auth()->user();
 
-        if (!$payee) {
+        if (!$subject) {
             return;
         }
 
-        $payee->undoPoint($pointType);
+        $subject->undoPoint($point);
     }
 }
 

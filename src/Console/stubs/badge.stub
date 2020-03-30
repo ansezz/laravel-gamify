@@ -2,25 +2,14 @@
 
 namespace DummyNamespace;
 
-use Ansezz\Gamify\BadgeType;
+use Ansezz\Gamify\BaseBadge;
 
-class DummyClass extends BadgeType
+class DummyClass extends BaseBadge
 {
-    /**
-     * Description for badge
-     *
-     * @var string
-     */
-    protected $description = '';
 
-    /**
-     * Check is user qualifies for badge
-     *
-     * @param $user
-     * @return bool
-     */
-    public function qualifier($user)
+    public function __invoke($badge, $subject)
     {
-        return $user->getPoints() >= 1000;
+        return $subject->point_sum >= 100;
     }
+
 }

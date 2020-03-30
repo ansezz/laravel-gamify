@@ -2,18 +2,18 @@
 
 namespace Ansezz\Gamify\Listeners;
 
-use Ansezz\Gamify\Events\ReputationChanged;
+use Ansezz\Gamify\Events\PointsChanged;
 
 class SyncBadges
 {
     /**
      * Handle the event.
      *
-     * @param  ReputationChanged  $event
+     * @param  PointsChanged  $event
      * @return void
      */
-    public function handle(ReputationChanged $event)
+    public function handle(PointsChanged $event)
     {
-        $event->user->syncBadges();
+        $event->subject->syncBadges();
     }
 }

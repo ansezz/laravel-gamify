@@ -2,34 +2,14 @@
 
 namespace DummyNamespace;
 
-use Ansezz\Gamify\PointType;
+use Ansezz\Gamify\BasePoint;
 
-class DummyClass extends PointType
+class DummyClass extends BasePoint
 {
-    /**
-     * Number of points
-     *
-     * @var int
-     */
-    public $points = 20;
 
-    /**
-     * Point constructor
-     *
-     * @param $subject
-     */
-    public function __construct($subject)
+    public function __invoke($badge, $subject)
     {
-        $this->subject = $subject;
+        return $subject->point_sum >= 100;
     }
 
-    /**
-     * User who will be receive points
-     *
-     * @return mixed
-     */
-    public function payee()
-    {
-        return $this->getSubject()->user;
-    }
 }

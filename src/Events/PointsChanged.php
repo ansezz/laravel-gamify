@@ -9,14 +9,14 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ReputationChanged implements ShouldBroadcast
+class PointsChanged implements ShouldBroadcast
 {
     use Dispatchable, SerializesModels;
 
     /**
      * @var Model
      */
-    public $user;
+    public $subject;
 
     /**
      * @var int
@@ -31,13 +31,13 @@ class ReputationChanged implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @param $user
+     * @param $subject
      * @param $point integer
      * @param $increment
      */
-    public function __construct(Model $user, int $point, bool $increment)
+    public function __construct(Model $subject, int $point, bool $increment)
     {
-        $this->user = $user;
+        $this->subject = $subject;
         $this->point = $point;
         $this->increment = $increment;
     }
@@ -49,7 +49,7 @@ class ReputationChanged implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $channelName = config('gamify.channel_name') . $this->user->getKey();
+        $channelName = config('gamify.channel_name') . $this->subject->getKey();
 
         if (config('gamify.broadcast_on_private_channel')) {
             return new PrivateChannel($channelName);

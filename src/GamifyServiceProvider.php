@@ -2,13 +2,14 @@
 
 namespace Ansezz\Gamify;
 
+use Ansezz\Gamify\Facades\Gamify;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Ansezz\Gamify\Listeners\SyncBadges;
 use Illuminate\Support\ServiceProvider;
 use Ansezz\Gamify\Console\MakeBadgeCommand;
 use Ansezz\Gamify\Console\MakePointCommand;
-use Ansezz\Gamify\Events\ReputationChanged;
+use Ansezz\Gamify\Events\PointsChanged;
 
 class GamifyServiceProvider extends ServiceProvider
 {
@@ -26,12 +27,13 @@ class GamifyServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__ . '/config/gamify.php', 'gamify');
 
+        $this->loadFactoriesFrom(__DIR__ . '/Factories');
+
         // publish migration
         if (!class_exists('CreateGamifyTables')) {
             $timestamp = date('Y_m_d_His', time());
             $this->publishes([
-                __DIR__ . '/migrations/create_gamify_tables.php.stub' => database_path("/migrations/{$timestamp}_create_gamify_tables.php"),
-                __DIR__ . '/migrations/add_reputation_on_user_table.php.stub' => database_path("/migrations/{$timestamp}_add_reputation_field_on_user_table.php"),
+                __DIR__ . '/migrations/create_gamify_tables.php.stub'         => database_path("/migrations/{$timestamp}_create_gamify_tables.php"),
             ], 'migrations');
         }
 
@@ -44,7 +46,7 @@ class GamifyServiceProvider extends ServiceProvider
         }
 
         // register event listener
-        Event::listen(ReputationChanged::class, SyncBadges::class);
+        Event::listen(PointsChanged::class, SyncBadges::class);
     }
 
     /**
@@ -54,6 +56,11 @@ class GamifyServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(Gamify::class, function () {
+            return new Gamify();
+        });
+        $this->app->alias(Gamify::class, 'gamify');
+
         $this->app->singleton('badges', function () {
             return cache()->rememberForever('gamify.badges.all', function () {
                 return $this->getBadges()->map(function ($badge) {
