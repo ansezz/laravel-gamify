@@ -17,8 +17,9 @@ class CreateGamifyTables extends Migration
         Schema::create('points', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('description')->nullable();
             $table->double('point');
-            $table->double('class')->nullable();
+            $table->string('class')->nullable();
             $table->boolean('allow_duplicate')->default(false);
             $table->unsignedBigInteger('gamify_group_id');
             $table->timestamps();
@@ -30,7 +31,7 @@ class CreateGamifyTables extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->string('image')->nullable();
-            $table->double('class')->nullable();
+            $table->string('class')->nullable();
             $table->unsignedBigInteger('gamify_level_id')->nullable();
             $table->unsignedBigInteger('gamify_group_id')->nullable();
             $table->timestamps();
@@ -64,7 +65,6 @@ class CreateGamifyTables extends Migration
         Schema::create('gamify_levels', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('key');
             $table->timestamps();
         });
     }

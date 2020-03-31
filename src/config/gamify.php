@@ -18,4 +18,6 @@ return [
 
     // Extention of badge icons
     'badge_icon_extension'         => '.svg',
+    'badge_is_archived'            => false,
+    'point_is_archived'            => true,
 ];

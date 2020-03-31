@@ -36,7 +36,7 @@ trait HasBadges
         $subject = is_null($subject) ? $this : $subject;
 
         $badgeIds = Badge::all()->filter
-            ->isArchived($subject)
+            ->isAchieved($subject)
             ->map->id;
 
         $subject->badges()->sync($badgeIds);

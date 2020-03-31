@@ -37,7 +37,7 @@ trait HasPoints
 
     public function achievePoint($point)
     {
-        $this->points()->save($point);
+        $this->points()->attach($point->id);
 
         PointsChanged::dispatch($this, $point->point, false);
 

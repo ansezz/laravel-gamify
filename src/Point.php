@@ -16,4 +16,13 @@ class Point extends Model
     {
         return $this->belongsTo(GamifyGroup::class);
     }
+
+    public function isAchieved($subject)
+    {
+        if (class_exists($this->class)) {
+            return ((new $this->class)($this, $subject));
+        }
+
+        return config('gamify.point_is_archived');
+    }
 }

@@ -3,6 +3,7 @@
 namespace Ansezz\Gamify;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Badge extends Model
 {
@@ -29,13 +30,13 @@ class Badge extends Model
     }
 
 
-    public function isArchived($subject)
+    public function isAchieved($subject)
     {
         if (class_exists($this->class)) {
             return ((new $this->class)($this, $subject));
         }
 
-        return false;
+        return config('gamify.badge_is_archived');
     }
 
 
@@ -57,5 +58,29 @@ class Badge extends Model
     public function level()
     {
         return $this->belongsTo(GamifyLevel::class);
+    }
+
+    public function getImageAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        return $this->getDefaultIcon();
+    }
+
+    /**
+     * Get the default icon if not provided
+     *
+     * @return string
+     */
+    protected function getDefaultIcon()
+    {
+        return sprintf(
+            '%s/%s%s',
+            rtrim(config('gamify.badge_icon_folder', 'images/badges'), '/'),
+            Str::kebab($this->name),
+            config('gamify.badge_icon_extension', '.svg')
+        );
     }
 }

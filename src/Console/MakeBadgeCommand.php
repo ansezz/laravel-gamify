@@ -2,6 +2,9 @@
 
 namespace Ansezz\Gamify\Console;
 
+use Ansezz\Gamify\Badge;
+use Ansezz\Gamify\GamifyGroup;
+use Ansezz\Gamify\GamifyLevel;
 use Illuminate\Console\GeneratorCommand;
 
 class MakeBadgeCommand extends GeneratorCommand
@@ -34,7 +37,7 @@ class MakeBadgeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/stubs/badge.stub';
+        return __DIR__ . '/stubs/badge.stub';
     }
 
     /**
@@ -46,7 +49,7 @@ class MakeBadgeCommand extends GeneratorCommand
      */
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace.'\Gamify\Badges';
+        return $rootNamespace . '\Gamify\Badges';
     }
 
     /**
@@ -59,6 +62,24 @@ class MakeBadgeCommand extends GeneratorCommand
     {
         // clear the cache for badges
         cache()->forget('gamify.badges.all');
+
+        if ($this->confirm('Do you wanna create database record ?')) {
+            $name = $this->ask('Badge name?');
+            $description = $this->ask('Badge description?');
+            $group = $this->ask('Badge Group?');
+            $level = $this->ask('Badge Level?');
+
+            $group = GamifyGroup::firstOrCreate(['name' => $group]);
+            $level = GamifyLevel::firstOrCreate(['name' => $level]);
+
+            Badge::create([
+                'name'            => $name,
+                'description'     => $description,
+                'gamify_level_id' => $level->id,
+                'gamify_group_id' => $group->id,
+                'class'           => $this->qualifyClass($this->argument('name')),
+            ]);
+        }
 
         return parent::handle();
     }
