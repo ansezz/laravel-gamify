@@ -1,11 +1,15 @@
 ## Laravel Gamify  🕹 🏆
+Laravel Gamify: Gamification System with Points & Badges support
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ansezz/laravel-gamify.svg)](https://packagist.org/packages/ansezz/laravel-gamify)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/ansezz/laravel-gamify/master.svg)](https://travis-ci.org/ansezz/laravel-gamify)
 [![Total Downloads](https://img.shields.io/packagist/dt/ansezz/laravel-gamify.svg)](https://packagist.org/packages/ansezz/laravel-gamify)
 
-Use `ansezz/laravel-gamify` to quickly add reputation point &amp; badges in your Laravel app.
+[![Latest Version on Packagist](https://repository-images.githubusercontent.com/245541946/0a641100-742a-11ea-8362-41f2d6d52974)](https://packagist.org/packages/ansezz/laravel-gamify)
+
+
+Use `ansezz/laravel-gamify` to quickly add point &amp; badges in your Laravel app.
 
 ### Installation
 
@@ -67,43 +71,23 @@ class User extends Authenticatable
 php artisan gamify:point PostCreated
 ```
 
-It will create a PointType class named `PostCreated` under `app/Gamify/Points/` folder.
+It will create a Point class named `PostCreated` under `app/Gamify/Points/` folder.
 
 ```php
 <?php
 
 namespace App\Gamify\Points;
 
-use Ansezz\Gamify\PointType;
+use Ansezz\Gamify\BasePoint;
 
-class PostCreated extends PointType
+class PostCreated extends BasePoint
 {
-    /**
-     * Number of points
-     *
-     * @var int
-     */
-    public $points = 20;
 
-    /**
-     * Point constructor
-     *
-     * @param $subject
-     */
-    public function __construct($subject)
+    public function __invoke($badge, $subject)
     {
-        $this->subject = $subject;
+        return $subject->point_sum >= 100;
     }
 
-    /**
-     * User who will be receive points
-     *
-     * @return mixed
-     */
-    public function payee()
-    {
-        return $this->getSubject()->user;
-    }
 }
 ```
 
@@ -146,100 +130,28 @@ To get the total user reputation you have `$user->getPoints($formatted = false)`
 
 ```php
 // get integer point
-$user->getPoints(); // 20
-
-// formatted result
-$user->getPoints(true); // if point is more than 1000 1K+
+$user->point_sum; // 20
 ```
 
-### Get reputation history
+### Get points history
 
-Since package stores all the reputation event log so you can get the history of reputation via the following relation:
+Since package stores all the points event log so you can get the history of reputation via the following relation:
 
 ```php
-foreach($user->reputations as $reputation) {
+foreach($user->points as $point) {
     // name of the point type 
-    $reputation->name
-    
-    // payee user
-    $reputation->payee
+    $point->name
     
     // how many points
-    $reputation->point
-    
-    // model on which point was given 
-    $reputation->subject
+    $point->point
 }
 ``` 
-
-If you want to get all the points given on a `subject` model. You should define a `morphMany` relations. For example on post model.
-
-```php
-    /**
-     * Get all the post's reputation.
-     */
-    public function reputations()
-    {
-        return $this->morphMany('Ansezz\Gamify\Reputation', 'subject');
-    }
-```
-
-Now you can get all the reputation given on a `Post` using `$post->reputations`.
-
-### Configure a Point Type
-
-#### Point payee
-In most of the case your subject model which you pass into point `new PostCreated($post)` will be related to the User via some relation.
-
-```php
-class PostCreated extends PointType
-{
-    public $points = 20;
-    
-    protected $payee = 'user';
-    
-    // dont need this, payee property will return subject realtion 
-    // public function payee()
-    // {
-    //    return $this->getSubject()->user;
-    // }
-}
-```
-
-#### Dynamic point
-
-If a point is calculated based on some logic you should add `getPoints()` method to do the calculation and always return an integer.
-
-```php
-class PostCreated extends PointType
-{
-    protected $payee = 'user';
-    
-    public function getPoints()
-    {
-        return $this->getSubject()->user->getPoint() * 10;
-    }
-}
-```
 
 #### Point qualifier
 
 This is an optional method which returns boolean if its true then this point will be given else it will be ignored. 
 It's will be helpful if you want to determine the qualification for point dynamically.
 
-#### Prevent duplicate reputation
-
-By default, you can give points multiple times for same model subject. But you can prevent it by adding the following property to the class:
-
-```php
-class PostCreated extends PointType
-{
-    // prevent duplicate point
-    public $allowDuplicates = false;
-
-    protected $payee = 'user';
-}
-```
 
 #### Event on reputation changed
 
@@ -249,11 +161,10 @@ Whenever user point changes it fires `\Ansezz\Gamify\Events\PointsChanged` event
 class PointsChanged implements ShouldBroadcast {
     
     ...
-    public function __construct(Model $user, int $point, bool $increment)
+    public function __construct(Model $user, int $point)
     {
         $this->user = $user;
         $this->point = $point;
-        $this->increment = $increment;
     }
 }
 ```
@@ -262,21 +173,7 @@ This event also broadcast in configured channel name so you can listen to it fro
 
 ## 🏆 🏅 Achievement Badges
 
-Similar to Point type you have badges. They can be given to users based on rank or any other criteria. You should define badge level in `config/gamify.php`.
-
-```php
-// All the levels for badge
-'badge_levels' => [
-    'beginner' => 1,
-    'intermediate' => 2,
-    'advanced' => 3,
-],
-
-// Default level
-'badge_default_level' => 1
-```
-
-Badge levels are stored as `tinyint` so keep the value as an integer value. It will be faster to do the sorting when needed. 
+Similar to Point type you have badges. They can be given to users based on rank or any other criteria. You should define badge level in database.
 
 ### Create a Badge
 
@@ -293,68 +190,20 @@ It will create a BadgeType class named `FirstContribution` under `app/Gamify/Bad
 
 namespace App\Gamify\Badges;
 
-use Ansezz\Gamify\BadgeType;
+use Ansezz\Gamify\BaseBadge;
 
-class FirstContribution extends BadgeType
+class FirstContribution extends BaseBadge
 {
-    /**
-     * Description for badge
-     *
-     * @var string
-     */
-    protected $description = '';
 
-    /**
-     * Check is user qualifies for badge
-     *
-     * @param $user
-     * @return bool
-     */
-    public function qualifier($user)
+    public function __invoke($badge, $subject)
     {
-        return $user->getPoints() >= 1000;
+        return $subject->point_sum >= 100;
     }
+
 }
 ```
 
-As you can see this badge has a `$description` field and a `qualifier($user)` method. 
-Gamify package will listen for any change in reputation point and it will run the user against all the available badges and assign all the badges user is qualified.
-
-#### Change badge name
-
-By default, badge name will be a pretty version on the badge class name. In the above case it will be `First Contribution`. 
-You can change it by adding a `$name` property in class or you can override `getName()` method if you want to name it dynamically.
-
-#### Change badge icon
-
-Similar to name you can change it by `$icon` property or by `getIcon()` method. When you define icon on the class you need to specify full path with extension. 
-`config/gamify.php` folder `badge_icon_folder` and `badge_icon_extension` won't be used.
-
-#### Change badge level
-
-You have same `$level` property or by `getLevel()` method to change it.
-Its like category of badges, all badges are defined in `config/gamify.php` as `badge_levels`. If none is specified then `badge_default_level` will be used from config.
-
-**Warning ⚠️** Don't forget to clear the cache whenever you make any changes add or remove badges by running `php artisan cache:forget gamify.badges.all`. ⚠️ 
-
-#### Get badges of user
-You can get a users badges by calling `$user->badges` which will return collection of badges for a user.
-
-### Use without Badge
-
-If your app doesn't need **Badges** you should just use `HasReputations` trait instead of `Gamify`.  
-
-### Use without reputation history
-
-If you dont need to maintain the history of all the point user has rewarded and you just want to increment and decrement reputation, you should use following method:
-
 ```php
-// to add point
-$user->addPoint($point = 1);
-
-// to reduce point
-$user->reducePoint($point = 1);
-
 // to reset point back to zero
 $user->resetPoint();
 ```
@@ -367,40 +216,27 @@ You dont need to generate point class for this.
 <?php
 
 return [
-    // Model which will be having points, generally it will be User
-    'payee_model' => '\App\User',
-
     // Reputation model
-    'reputation_model' => '\Ansezz\Gamify\Reputation',
-
-    // Allow duplicate reputation points
-    'allow_reputation_duplicate' => true,
+    'point_model'                  => '\Ansezz\Gamify\Point',
 
     // Broadcast on private channel
     'broadcast_on_private_channel' => true,
 
     // Channel name prefix, user id will be suffixed
-    'channel_name' => 'user.reputation.',
+    'channel_name'                 => 'user.reputation.',
 
     // Badge model
-    'badge_model' => '\Ansezz\Gamify\Badge',
+    'badge_model'                  => '\Ansezz\Gamify\Badge',
 
     // Where all badges icon stored
-    'badge_icon_folder' => 'images/badges/',
+    'badge_icon_folder'            => 'images/badges/',
 
     // Extention of badge icons
-    'badge_icon_extension' => '.svg',
-
-    // All the levels for badge
-    'badge_levels' => [
-        'beginner' => 1,
-        'intermediate' => 2,
-        'advanced' => 3,
-    ],
-
-    // Default level
-    'badge_default_level' => 1
+    'badge_icon_extension'         => '.svg',
+    'badge_is_archived'            => false,
+    'point_is_archived'            => true,
 ];
+
 ```
 
 ### Changelog
