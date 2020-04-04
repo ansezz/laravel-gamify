@@ -1,4 +1,4 @@
-## Laravel Gamify  🕹 🏆
+## 🏆 Laravel Gamify  🕹
 Laravel Gamify: Gamification System with Points & Badges support
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ansezz/laravel-gamify.svg)](https://packagist.org/packages/ansezz/laravel-gamify)
@@ -63,7 +63,7 @@ class User extends Authenticatable
     use Notifiable, Gamify;
 ```
 
-## ⭐️ 👑 Reputation Point
+## ⭐️ Reputation Point 👑
 
 **2.** Next step is to create a point.
 
@@ -171,7 +171,7 @@ class PointsChanged implements ShouldBroadcast {
 
 This event also broadcast in configured channel name so you can listen to it from your frontend via socket to live update reputation points.
 
-## 🏆 🏅 Achievement Badges
+## 🏅 Achievement Badges 🏆
 
 Similar to Point type you have badges. They can be given to users based on rank or any other criteria. You should define badge level in database.
 
