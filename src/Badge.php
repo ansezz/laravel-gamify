@@ -30,10 +30,20 @@ class Badge extends Model
     }
 
 
+    /**
+     * @param $subject
+     *
+     * @return \Illuminate\Config\Repository|mixed
+     */
     public function isAchieved($subject)
     {
         if (class_exists($this->class)) {
-            return ((new $this->class)($this, $subject));
+            $class = new $this->class;
+            if ($this->gamifyLevel) {
+                return $class->levelIsAchieved($this->gamifyLevel, $subject);
+            } else {
+                return $class($this, $subject);
+            }
         }
 
         return config('gamify.badge_is_archived');
@@ -55,7 +65,7 @@ class Badge extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function level()
+    public function gamifyLevel()
     {
         return $this->belongsTo(GamifyLevel::class);
     }
