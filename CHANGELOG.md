@@ -2,18 +2,21 @@
 
 All notable changes to `ansezz/laravel-gamify` will be documented in this file
 
-## 1.0.3 - 2019-09-05
+## 1.2 - 2020-04-05
 
-- Laravel 6 support
+- Support dynamic point
+- Levels in the config file instead of database 
+- Add Gamify Facade
+- Dispatch event when a new badge achieved
+- Update readme
 
-## 1.0.2 - 2019-03-17
+## 1.1 - 2020-04-04       
 
-- Added subject relation on a reputation
+- Support Level in Point
+- Support Group in Badge & Point
+- Create a badge command
+- Create a point command
 
-## 1.0.1 - 2019-03-12
-
-- Added Laravel 5.8 compatibility
-
-## 1.0.0 - 2018-11-29
+## 1.0 - 2020-03-07
 
 - initial release
