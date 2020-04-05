@@ -50,6 +50,7 @@ class CreateGamifyTables extends Migration
             $table->id();
             $table->unsignedBigInteger('point_id');
             $table->morphs('pointable');
+            $table->double('achieved_point')->default(0);
             $table->timestamps();
         });
 

@@ -12,12 +12,12 @@ trait HasPoints
      */
     public function points()
     {
-        return $this->morphToMany(Point::class, 'pointable');
+        return $this->morphToMany(Point::class, 'pointable')->withPivot(['achieved_point']);
     }
 
     public function getPointSumAttribute()
     {
-        return $this->points()->sum('point');
+        return $this->points()->sum('achieved_point');
     }
 
     /**
@@ -35,9 +35,14 @@ trait HasPoints
     }
 
 
-    public function achievePoint($point)
+    /**
+     * @param \Ansezz\Gamify\Point $point
+     *
+     * @return $this
+     */
+    public function achievePoint(Point $point)
     {
-        $this->points()->attach($point->id);
+        $this->points()->attach([$point->id => ['achieved_point' => $point->getPoints($this)]]);
 
         PointsChanged::dispatch($this, $point->point, false);
 

@@ -25,4 +25,21 @@ class Point extends Model
 
         return config('gamify.point_is_archived');
     }
+
+    /**
+     * @param $subject
+     *
+     * @return \Illuminate\Config\Repository|mixed
+     */
+    public function getPoints($subject)
+    {
+        if (class_exists($this->class)) {
+            $class = new $this->class;
+            if (method_exists($class, 'getDynamicPoints')) {
+                return $class->getDynamicPoints($this, $subject);
+            }
+        }
+
+        return $this->point;
+    }
 }
