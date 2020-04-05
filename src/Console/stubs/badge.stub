@@ -9,7 +9,7 @@ class DummyClass extends BaseBadge
 
     public function __invoke($badge, $subject)
     {
-        return $subject->point_sum >= 100;
+        return $subject->achieved_points >= 100;
     }
 
 }

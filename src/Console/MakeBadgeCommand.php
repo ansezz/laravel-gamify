@@ -4,7 +4,6 @@ namespace Ansezz\Gamify\Console;
 
 use Ansezz\Gamify\Badge;
 use Ansezz\Gamify\GamifyGroup;
-use Ansezz\Gamify\GamifyLevel;
 use Illuminate\Console\GeneratorCommand;
 
 class MakeBadgeCommand extends GeneratorCommand
@@ -66,16 +65,14 @@ class MakeBadgeCommand extends GeneratorCommand
         if ($this->confirm('Do you wanna create database record ?')) {
             $name = $this->ask('Badge name?');
             $description = $this->ask('Badge description?');
-            $group = $this->ask('Badge Group?');
+            $group = $this->ask('Badge Group?')->default(config('gamify.badge_default_level'));;
             $level = $this->ask('Badge Level?');
 
-            $group = GamifyGroup::firstOrCreate(['name' => $group]);
-            $level = GamifyLevel::firstOrCreate(['name' => $level]);
 
             Badge::create([
                 'name'            => $name,
                 'description'     => $description,
-                'gamify_level_id' => $level->id,
+                'level'           => $level,
                 'gamify_group_id' => $group->id,
                 'class'           => $this->qualifyClass($this->argument('name')),
             ]);

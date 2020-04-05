@@ -32,7 +32,7 @@ class CreateGamifyTables extends Migration
             $table->string('description')->nullable();
             $table->string('image')->nullable();
             $table->string('class')->nullable();
-            $table->unsignedBigInteger('gamify_level_id')->nullable();
+            $table->unsignedBigInteger('level')->nullable();
             $table->unsignedBigInteger('gamify_group_id')->nullable();
             $table->timestamps();
         });
@@ -50,7 +50,7 @@ class CreateGamifyTables extends Migration
             $table->id();
             $table->unsignedBigInteger('point_id');
             $table->morphs('pointable');
-            $table->double('achieved_point')->default(0);
+            $table->double('achieved_points')->default(0);
             $table->timestamps();
         });
 
@@ -59,13 +59,6 @@ class CreateGamifyTables extends Migration
             $table->id();
             $table->unsignedBigInteger('badge_id');
             $table->morphs('badgable');
-            $table->timestamps();
-        });
-
-        // gamify_levels tables
-        Schema::create('gamify_levels', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
             $table->timestamps();
         });
     }
@@ -82,7 +75,5 @@ class CreateGamifyTables extends Migration
         Schema::dropIfExists('points');
         Schema::dropIfExists('pointables');
         Schema::dropIfExists('badgables');
-        Schema::dropIfExists('badge_level');
-        Schema::dropIfExists('gamify_levels');
     }
 }

@@ -38,12 +38,7 @@ class Badge extends Model
     public function isAchieved($subject)
     {
         if (class_exists($this->class)) {
-            $class = new $this->class;
-            if ($this->gamifyLevel) {
-                return $class->levelIsAchieved($this->gamifyLevel, $subject);
-            } else {
-                return $class($this, $subject);
-            }
+            return (new $this->class)->levelIsAchieved($this->level, $subject);
         }
 
         return config('gamify.badge_is_archived');
@@ -58,16 +53,6 @@ class Badge extends Model
     public function group()
     {
         return $this->belongsTo(GamifyGroup::class);
-    }
-
-    /**
-     * Point Gamify Group
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function gamifyLevel()
-    {
-        return $this->belongsTo(GamifyLevel::class);
     }
 
     public function getImageAttribute($value)

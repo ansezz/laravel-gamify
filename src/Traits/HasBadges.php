@@ -16,6 +16,11 @@ trait HasBadges
     }
 
 
+    /**
+     * @param $badge
+     *
+     * @return $this
+     */
     public function achieveBadge($badge)
     {
         $this->badges()->attach($badge);
@@ -24,6 +29,11 @@ trait HasBadges
     }
 
 
+    /**
+     * @param $badge
+     *
+     * @return $this
+     */
     public function undoBadge($badge)
     {
         $this->badges()->detach($badge);
@@ -31,6 +41,11 @@ trait HasBadges
         return $this;
     }
 
+    /**
+     * @param null $subject
+     *
+     * @return $this
+     */
     public function syncBadges($subject = null)
     {
         $subject = is_null($subject) ? $this : $subject;
@@ -40,5 +55,7 @@ trait HasBadges
             ->map->id;
 
         $subject->badges()->sync($badgeIds);
+
+        return $this;
     }
 }

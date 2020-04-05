@@ -85,7 +85,7 @@ class PostCreated extends BasePoint
 
     public function __invoke($badge, $subject)
     {
-        return $subject->point_sum >= 100;
+        return $subject->achieved_points >= 100;
     }
 
 }
@@ -130,7 +130,7 @@ To get the total user reputation you have `$user->getPoints($formatted = false)`
 
 ```php
 // get integer point
-$user->point_sum; // 20
+$user->achieved_points; // 20
 ```
 
 ### Get points history
@@ -197,7 +197,7 @@ class FirstContribution extends BaseBadge
 
     public function __invoke($badge, $subject)
     {
-        return $subject->point_sum >= 100;
+        return $subject->achieved_points >= 100;
     }
 
 }

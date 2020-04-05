@@ -12,12 +12,12 @@ trait HasPoints
      */
     public function points()
     {
-        return $this->morphToMany(Point::class, 'pointable')->withPivot(['achieved_point']);
+        return $this->morphToMany(Point::class, 'pointable')->withPivot(['achieved_points']);
     }
 
     public function getPointSumAttribute()
     {
-        return $this->points()->sum('achieved_point');
+        return $this->points()->sum('achieved_points');
     }
 
     /**
@@ -28,7 +28,6 @@ trait HasPoints
     public function resetPoint()
     {
         $this->points()->delete();
-
         PointsChanged::dispatch($this, 0, false);
 
         return $this;
@@ -42,9 +41,9 @@ trait HasPoints
      */
     public function achievePoint(Point $point)
     {
-        $this->points()->attach([$point->id => ['achieved_point' => $point->getPoints($this)]]);
-
-        PointsChanged::dispatch($this, $point->point, false);
+        $achieved_points = $point->getPoints($this);
+        $this->points()->attach([$point->id => ['achieved_points' => $achieved_points]]);
+        PointsChanged::dispatch($this, $achieved_points, true);
 
         return $this;
     }
@@ -52,8 +51,7 @@ trait HasPoints
     public function undoPoint($point)
     {
         $this->points()->detach($point);
-
-        PointsChanged::dispatch($this, $point->point, false);
+        PointsChanged::dispatch($this, $point->getPoints($this), false);
 
         return $this;
     }
