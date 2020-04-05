@@ -192,7 +192,7 @@ This event also broadcast in configured channel name so you can listen to it fro
 
 ## 🏅 Achievement Badges 🏆
 
-Similar to Point type you have badges. They can be given to users based on rank or any other criteria. You should define badge level in database.
+Similar to Point type you have badges. They can be given to users based on rank or any other criteria. You should define badge level in config file.
 
 ### Create a Badge
 

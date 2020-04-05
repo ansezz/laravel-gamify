@@ -4,7 +4,7 @@ All notable changes to `ansezz/laravel-gamify` will be documented in this file
 
 ## 1.2 - 2020-04-05
 
-- Support dynamic point
+    - Support dynamic point
 - Levels in the config file instead of database 
 - Add Gamify Facade
 - Dispatch event when a new badge achieved
