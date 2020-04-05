@@ -36,7 +36,7 @@ In Laravel 5.5 and above the service provider automatically.
 php artisan vendor:publish --provider="Ansezz\Gamify\GamifyServiceProvider" --tag="migrations"
 ```
 
-*Note:* It will generate migration for `reputations`, `badges` and `user_badges` tables along with add reputation field migration for `users` table to store the points, you will need to run `composer require doctrine/dbal` in order to support dropping and adding columns.
+*Note:* It will generate migration for `points`, `badges`, `gamify_groups`, `pointables`, `badgables` tables, you will need to run `composer require doctrine/dbal` in order to support dropping and adding columns.
 
 ```
 php artisan migrate
