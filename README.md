@@ -63,13 +63,18 @@ class User extends Authenticatable
     use Notifiable, Gamify;
 ```
 
-## ⭐️ Reputation Point 👑
+## ⭐️Point 👑
 
 **2.** Next step is to create a point.
-
+> - The point class is option because we save the point in database.
+> - You can create a point directly in your database without class.
+> - Create the point class if you need to add a check before achieve the point or if you wanna define a dynamic point value.
 ```bash
 php artisan gamify:point PostCreated
 ```
+They will ask you if you wanna create the database badge record.
+
+> class attribute in badges table will take the class with namespace in this case: `App\Gamify\Points\PostCreated`
 
 It will create a Point class named `PostCreated` under `app/Gamify/Points/` folder.
 
@@ -82,51 +87,55 @@ use Ansezz\Gamify\BasePoint;
 
 class PostCreated extends BasePoint
 {
-
-    public function __invoke($badge, $subject)
-    {
-        return $subject->achieved_points >= 100;
-    }
+       public function __invoke($point, $subject)
+       {
+           return true;
+       }
 
 }
 ```
+in `__invoke` you can add any condition to check if user achieve the point else return `true` , esle we use `config('gamify.point_is_archived')` by default you can change it in you config file `gamify.php`.
+
 
 ### Give point to User
 
-Now in your Controller where a Post is created you can give points like this:
-
 ```php
-$user = $request->user();
-$post = $user->posts()->create($request->only(['title', 'body']));
+$user = auth()->user();
 
-// you can use helper function
-givePoint(new PostCreated($post));
+$point = Point::find(1);
 
-// or via HasReputation trait method
-$user->givePoint(new PostCreated($post));
+// or you can use facade function
+Gamify::achievePoint($point);
+
+
+// or via HasBadge trait method
+$user->achievePoint($point);
 ```
 
 ### Undo a given point
 
-In some cases you would want to undo a given point, for example, a user deletes his post.
+In some cases you would want to undo a given point.
 
 ```php
-// via helper function
-undoPoint(new PostCreated($post));
-$post->delete();
+$user = auth()->user();
 
-// or via HasReputation trait method
-$user->undoPoint(new PostCreated($post));
-$post->delete();
+$point = Point::find(1);
+
+// or you can use facade function
+Gamify::undoPoint($point);
+
+// or via HasPoint trait method
+$user->undoPoint($point);
+
 ```
 
-You can also pass second argument as $user in helper function `givePoint(new PostCreated($post, $user))`, default is auth()->user().
+You can also pass second argument as $event (Boolean) in function `achievePoint & undoPoint ($point, $event)`, default is `true`, to disable sending `PointsChanged` event.
 
 **Pro Tip 👌** You could also hook into the Eloquent model event and give point on `created` event. Similarly, `deleted` event can be used to undo the point.
 
 ### Get total reputation
 
-To get the total user reputation you have `$user->getPoints($formatted = false)` method available. Optioally you can pass `$formatted = true` to get reputation as 1K+, 2K+ etc.
+To get the total user points achieved you have `achieved_points` attribute available..
 
 ```php
 // get integer point
@@ -135,25 +144,34 @@ $user->achieved_points; // 20
 
 ### Get points history
 
-Since package stores all the points event log so you can get the history of reputation via the following relation:
+the package stores all the points event log so you can get the history of points via the following relation:
 
 ```php
 foreach($user->points as $point) {
     // name of the point type 
-    $point->name
+    $point->name;
     
     // how many points
-    $point->point
+    $point->point;
 }
 ``` 
 
-#### Point qualifier
+### Get badges history
 
-This is an optional method which returns boolean if its true then this point will be given else it will be ignored. 
-It's will be helpful if you want to determine the qualification for point dynamically.
+the package stores all the badges in database so you can get the history of badges via the following relation:
+
+```php
+foreach($user->badges as $badge) {
+    // name of the point type 
+    $point->name;
+    
+    // how many points
+    $point->image;
+}
+``` 
 
 
-#### Event on reputation changed
+#### Event on points changed
 
 Whenever user point changes it fires `\Ansezz\Gamify\Events\PointsChanged` event which has the following payload:
 
@@ -161,15 +179,16 @@ Whenever user point changes it fires `\Ansezz\Gamify\Events\PointsChanged` event
 class PointsChanged implements ShouldBroadcast {
     
     ...
-    public function __construct(Model $user, int $point)
+    public function __construct(Model $subject, int $point, bool $increment)
     {
-        $this->user = $user;
+        $this->subject = $subject;
         $this->point = $point;
+        $this->increment = $increment;
     }
 }
 ```
 
-This event also broadcast in configured channel name so you can listen to it from your frontend via socket to live update reputation points.
+This event also broadcast in configured channel name so you can listen to it from your frontend via socket to live update points.
 
 ## 🏅 Achievement Badges 🏆
 
@@ -179,11 +198,17 @@ Similar to Point type you have badges. They can be given to users based on rank 
 
 To generate a badge you can run following provided command:
 
+They will ask you if you wanna create the database badge record.
+
+> class attribute in badges table will take the class with namespace in this case: `App\Gamify\Badges\PostCreated`
+
 ```bash
-php artisan gamify:badge FirstContribution
+php artisan gamify:badge PostCreated
 ```
 
-It will create a BadgeType class named `FirstContribution` under `app/Gamify/Badges/` folder.
+It will create a BadgeType class named `PostCreated` under `app/Gamify/Badges/` folder.
+
+For each level you need to define a function by level name to check if the subject is achieve the badge, esle we use `config('gamify.badge_is_archived')` by default you can change it in you config file `gamify.php`.
 
 ```php
 <?php
@@ -192,13 +217,41 @@ namespace App\Gamify\Badges;
 
 use Ansezz\Gamify\BaseBadge;
 
-class FirstContribution extends BaseBadge
+class PostCreated extends BaseBadge
 {
 
-    public function __invoke($badge, $subject)
-    {
-        return $subject->achieved_points >= 100;
-    }
+    /**
+       * @param $badge
+       * @param $subject
+       *
+       * @return bool
+       */
+      public function beginner($badge, $subject)
+      {
+          return $subject->achieved_points >= 100;
+      }
+  
+      /**
+       * @param $badge
+       * @param $subject
+       *
+       * @return bool
+       */
+      public function intermediate($badge, $subject)
+      {
+          return $subject->achieved_points >= 200;
+      }
+  
+      /**
+       * @param $badge
+       * @param $subject
+       *
+       * @return bool
+       */
+      public function advanced($badge, $subject)
+      {
+          return $subject->achieved_points >= 300;
+      }
 
 }
 ```
@@ -208,7 +261,49 @@ class FirstContribution extends BaseBadge
 $user->resetPoint();
 ```
 
-You dont need to generate point class for this.  
+### Check if badge is Achieved by subject
+```
+$badage = Badge::find(1);
+$user =  auth()->user();
+
+$badge->isAchieved($user);
+```
+
+### Sync All badges
+```
+// sync all badges for current subject using Facade
+Gamify::syncBadges($user);
+
+// or via HasBadge trait method
+$user->syncBadges();
+```
+
+### Sync One badge
+```
+$badge = Badge::find(1);
+// sync all badges for current subject using Facade
+Gamify::syncBadge($badge, $user)
+
+// or via HasBadge trait method
+$user->syncBadge($badge);
+```
+
+#### Event on badge achieved
+
+Whenever user point changes it fires `\Ansezz\Gamify\Events\BadgeAchieved` event which has the following payload:
+
+```php
+class BadgeAchieved implements ShouldBroadcast {
+    
+    ...
+    public function __construct($subject, $badge)
+    {
+        $this->subject = $subject;
+        $this->badge = $badge;
+    }
+}
+```
+ 
 
 ### Config Gamify
 
@@ -233,7 +328,21 @@ return [
 
     // Extention of badge icons
     'badge_icon_extension'         => '.svg',
+
+    // All the levels for badge
+    'badge_levels'                 => [
+        'beginner'     => 1,
+        'intermediate' => 2,
+        'advanced'     => 3,
+    ],
+
+    // Default level
+    'badge_default_level'          => 1,
+
+    // Badge achieved vy default if check function not exit
     'badge_is_archived'            => false,
+
+    // point achieved vy default if check function not exit
     'point_is_archived'            => true,
 ];
 

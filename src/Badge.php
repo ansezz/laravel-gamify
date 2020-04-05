@@ -10,27 +10,6 @@ class Badge extends Model
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     /**
-     * Award badge to a user
-     *
-     * @param $user
-     */
-    public function awardTo($user)
-    {
-        // $this->users()->attach($user);
-    }
-
-    /**
-     * Remove badge from user
-     *
-     * @param $user
-     */
-    public function removeFrom($user)
-    {
-        // $this->users()->detach($user);
-    }
-
-
-    /**
      * @param $subject
      *
      * @return \Illuminate\Config\Repository|mixed
