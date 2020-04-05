@@ -3,6 +3,7 @@
 namespace Ansezz\Gamify\Traits;
 
 use Ansezz\Gamify\Badge;
+use Gamify;
 
 trait HasBadges
 {
@@ -49,12 +50,7 @@ trait HasBadges
     public function syncBadges($subject = null)
     {
         $subject = is_null($subject) ? $this : $subject;
-
-        $badgeIds = Badge::all()->filter
-            ->isAchieved($subject)
-            ->map->id;
-
-        $subject->badges()->sync($badgeIds);
+        Gamify::syncBadges($subject);
 
         return $this;
     }

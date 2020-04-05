@@ -7,7 +7,14 @@ use Ansezz\Gamify\BaseBadge;
 class DummyClass extends BaseBadge
 {
 
-    public function __invoke($badge, $subject)
+    /**
+     *  beginner check
+     * @param $badge
+     * @param $subject
+     *
+     * @return bool
+     */
+    public function beginner($badge, $subject)
     {
         return $subject->achieved_points >= 100;
     }

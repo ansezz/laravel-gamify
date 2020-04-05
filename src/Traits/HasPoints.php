@@ -15,7 +15,7 @@ trait HasPoints
         return $this->morphToMany(Point::class, 'pointable')->withPivot(['achieved_points']);
     }
 
-    public function getPointSumAttribute()
+    public function getAchievedPointsAttribute()
     {
         return $this->points()->sum('achieved_points');
     }

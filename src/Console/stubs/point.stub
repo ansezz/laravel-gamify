@@ -7,9 +7,16 @@ use Ansezz\Gamify\BasePoint;
 class DummyClass extends BasePoint
 {
 
-    public function __invoke($badge, $subject)
+    /**
+     * check if user achieve the point
+     * @param $point
+     * @param $subject
+     *
+     * @return bool
+     */
+    public function __invoke($point, $subject)
     {
-        return $subject->achieved_points >= 100;
+        return true;
     }
 
 }

@@ -27,13 +27,14 @@ class GamifyServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__ . '/config/gamify.php', 'gamify');
 
+        // Publish factory
         $this->loadFactoriesFrom(__DIR__ . '/Factories');
 
         // publish migration
         if (!class_exists('CreateGamifyTables')) {
             $timestamp = date('Y_m_d_His', time());
             $this->publishes([
-                __DIR__ . '/migrations/create_gamify_tables.php.stub'         => database_path("/migrations/{$timestamp}_create_gamify_tables.php"),
+                __DIR__ . '/migrations/create_gamify_tables.php.stub' => database_path("/migrations/{$timestamp}_create_gamify_tables.php"),
             ], 'migrations');
         }
 
@@ -56,40 +57,11 @@ class GamifyServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(Gamify::class, function () {
+        // register facade
+        $this->app->bind(Gamify::class, function ($app) {
             return new Gamify();
         });
+
         $this->app->alias(Gamify::class, 'gamify');
-
-        $this->app->singleton('badges', function () {
-            return cache()->rememberForever('gamify.badges.all', function () {
-                return $this->getBadges()->map(function ($badge) {
-                    return new $badge;
-                });
-            });
-        });
-    }
-
-    /**
-     * Get all the badge inside app/Gamify/Badges folder
-     *
-     * @return Collection
-     */
-    protected function getBadges()
-    {
-        $badgeRootNamespace = config(
-            'gamify.badge_namespace',
-            $this->app->getNamespace() . 'Gamify\Badges'
-        );
-
-        $badges = [];
-
-        foreach (glob(app_path('/Gamify/Badges/') . '*.php') as $file) {
-            if (is_file($file)) {
-                $badges[] = app($badgeRootNamespace . '\\' . pathinfo($file, PATHINFO_FILENAME));
-            }
-        }
-
-        return collect($badges);
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "ansezz/laravel-gamify",
-    "description": "Add gamification in laravel app with reputation point and badges support",
+    "description": "Add Gamification in laravel app with point and badges support",
     "homepage": "https://github.com/ansezz/laravel-gamify",
     "type": "library",
     "license": "MIT",
@@ -47,7 +47,10 @@
         "laravel": {
             "providers": [
                 "Ansezz\\Gamify\\GamifyServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Gamify": "Ansezz\\Gamify\\Facades\\GamifyFacade"
+            }
         }
     },
     "scripts": {
