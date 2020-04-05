@@ -18,31 +18,6 @@ trait HasBadges
 
 
     /**
-     * @param $badge
-     *
-     * @return $this
-     */
-    public function achieveBadge($badge)
-    {
-        $this->badges()->attach($badge);
-
-        return $this;
-    }
-
-
-    /**
-     * @param $badge
-     *
-     * @return $this
-     */
-    public function undoBadge($badge)
-    {
-        $this->badges()->detach($badge);
-
-        return $this;
-    }
-
-    /**
      * @param null $subject
      *
      * @return $this
@@ -51,6 +26,21 @@ trait HasBadges
     {
         $subject = is_null($subject) ? $this : $subject;
         Gamify::syncBadges($subject);
+
+        return $this;
+    }
+
+
+    /**
+     * @param $badge
+     * @param null $subject
+     *
+     * @return $this
+     */
+    public function syncBadge($badge, $subject = null)
+    {
+        $subject = is_null($subject) ? $this : $subject;
+        Gamify::syncBadge($badge, $subject);
 
         return $this;
     }

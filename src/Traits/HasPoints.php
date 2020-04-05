@@ -23,12 +23,17 @@ trait HasPoints
     /**
      * Reset a user point to zero
      *
+     * @param bool $event
+     *
      * @return mixed
      */
-    public function resetPoint()
+    public function resetPoint($event = true)
     {
         $this->points()->delete();
-        PointsChanged::dispatch($this, 0, false);
+
+        if ($event) {
+            PointsChanged::dispatch($this, 0, false);
+        }
 
         return $this;
     }
@@ -37,21 +42,35 @@ trait HasPoints
     /**
      * @param \Ansezz\Gamify\Point $point
      *
+     * @param bool $event
+     *
      * @return $this
      */
-    public function achievePoint(Point $point)
+    public function achievePoint(Point $point, $event = true)
     {
         $achieved_points = $point->getPoints($this);
         $this->points()->attach([$point->id => ['achieved_points' => $achieved_points]]);
-        PointsChanged::dispatch($this, $achieved_points, true);
+
+        if ($event) {
+            PointsChanged::dispatch($this, $achieved_points, true);
+        }
 
         return $this;
     }
 
-    public function undoPoint($point)
+    /**
+     * @param $point
+     * @param bool $event
+     *
+     * @return $this
+     */
+    public function undoPoint($point, $event = true)
     {
         $this->points()->detach($point);
-        PointsChanged::dispatch($this, $point->getPoints($this), false);
+
+        if ($event) {
+            PointsChanged::dispatch($this, $point->getPoints($this), false);
+        }
 
         return $this;
     }
