@@ -29,7 +29,7 @@ class Badge extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function group()
+    public function gamifyGroup()
     {
         return $this->belongsTo(GamifyGroup::class);
     }
