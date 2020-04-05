@@ -38,12 +38,12 @@ php artisan vendor:publish --provider="Ansezz\Gamify\GamifyServiceProvider" --ta
 
 *Note:* It will generate migration for `points`, `badges`, `gamify_groups`, `pointables`, `badgables` tables, you will need to run `composer require doctrine/dbal` in order to support dropping and adding columns.
 
-```
+```bash
 php artisan migrate
 ```
 
 You can publish the config file:
-```
+```bash
 php artisan vendor:publish --provider="Ansezz\Gamify\GamifyServiceProvider" --tag="config"
 ```
 
@@ -262,7 +262,7 @@ $user->resetPoint();
 ```
 
 ### Check if badge is Achieved by subject
-```
+```php
 $badage = Badge::find(1);
 $user =  auth()->user();
 
@@ -270,7 +270,7 @@ $badge->isAchieved($user);
 ```
 
 ### Sync All badges
-```
+```php
 // sync all badges for current subject using Facade
 Gamify::syncBadges($user);
 
@@ -279,7 +279,7 @@ $user->syncBadges();
 ```
 
 ### Sync One badge
-```
+```php
 $badge = Badge::find(1);
 // sync all badges for current subject using Facade
 Gamify::syncBadge($badge, $user)
