@@ -65,15 +65,16 @@ class MakeBadgeCommand extends GeneratorCommand
         if ($this->confirm('Do you wanna create database record ?')) {
             $name = $this->ask('Badge name?');
             $description = $this->ask('Badge description?');
-            $group = $this->ask('Badge Group?')->default(config('gamify.badge_default_level'));;
-            $level = $this->ask('Badge Level?');
+            $group = $this->ask('Badge Group?');
+            $level = $this->choice('Badge Level?', config('gamify.badge_levels'));
 
+            $group = GamifyGroup::firstOrCreate(['name' => $group, 'type' => 'badge']);
 
             Badge::create([
                 'name'            => $name,
                 'description'     => $description,
-                'level'           => $level,
                 'gamify_group_id' => $group->id,
+                'level'           => config('gamify.badge_levels')[$level],
                 'class'           => $this->qualifyClass($this->argument('name')),
             ]);
         }
